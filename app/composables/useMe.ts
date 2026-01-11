@@ -6,5 +6,6 @@ export function useMe() {
       user.value = data;
     } catch {}
   };
+  getMe();
   return { user, getMe };
 }

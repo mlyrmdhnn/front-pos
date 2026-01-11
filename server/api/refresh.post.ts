@@ -7,17 +7,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: "No refresh token" });
   }
 
-  const res = await $fetch.raw(`${config.apiBase}/refresh`, {
-    method: "POST",
-    headers: {
-      Cookie: incomingCookie, // ✔ harus object dengan key Cookie
-    },
-  });
+  try {
+    const res = await $fetch.raw(`${config.apiBase}/refresh`, {
+      method: "POST",
+      headers: {
+        Cookie: incomingCookie,
+      },
+    });
 
-  const setCookies = res.headers.getSetCookie();
-  if (setCookies?.length) {
-    event.node.res.setHeader("set-cookie", setCookies);
+    const setCookies = res.headers.getSetCookie();
+    if (setCookies?.length) {
+      event.node.res.setHeader("set-cookie", setCookies);
+    }
+  } catch (err: any) {
+    const statusCode = err?.respons?.status || 500;
+    const laravelData = err?.response?._data;
+    throw createError({
+      statusCode,
+      message: laravelData?.message || "Something went wrong",
+      data: laravelData?.errors || null,
+    });
   }
-
-  return res._data;
 });

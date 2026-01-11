@@ -1,6 +1,5 @@
 <!-- eslint-disable import/no-duplicates -->
 <script setup lang="ts">
-import axios from 'axios';
 import { Box } from 'lucide-vue-next';
 import { NotebookText } from 'lucide-vue-next';
 import { CircleDollarSign } from 'lucide-vue-next';

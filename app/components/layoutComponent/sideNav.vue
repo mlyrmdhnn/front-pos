@@ -10,7 +10,7 @@ const menus = [
     { name: 'Dashboard', path: '/dashboard/owner-dashboard' },
     { name: 'Kasir (POS)', path: '/owner/pos' },
     { name: 'Produk', path: '/owner/product' },
-    { name: 'Create Product', path: '' },
+    { name: 'Create Product', path: '/owner/create-product' },
     { name: 'Kategori', path: '/owner/category' },
     { name: 'Transaksi', path: '/owner/transaction' },
     { name: 'Create User', path: '/owner/create-user' }

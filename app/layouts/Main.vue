@@ -7,6 +7,7 @@ import sideNav from '~/components/layoutComponent/sideNav.vue';
 
 
 <template>
+
     <div class="h-screen overflow-hidden">
         <side-nav />
         <main class="lg:ml-56 mt-16 h-[calc(100vh-4rem)] overflow-y-auto bg-neutral-200 p-6">

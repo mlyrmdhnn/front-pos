@@ -9,7 +9,7 @@ const { toasts } = useToast()
                 class="pointer-events-auto min-w-[280px] rounded-lg px-4 py-3 text-sm shadow-lg text-white" :class="{
                     'bg-emerald-600': toast.type === 'success',
                     'bg-red-600': toast.type === 'error',
-                    'bg-sky-600': toast.type === 'info'
+                    'bg-neutral-400': toast.type === 'info'
                 }">
                 {{ toast.message }}
             </div>

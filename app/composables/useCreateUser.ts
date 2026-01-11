@@ -23,7 +23,6 @@ export function useCreateUser() {
       });
       show("User create Successfully", "success");
     } catch (err: any) {
-      //   console.error("Create user failed:", err);
       show(err.data.data.message, "error");
     }
   };

@@ -1,6 +1,5 @@
 <!-- eslint-disable vue/attributes-order -->
 <script setup lang="ts">
-// import { useAi } from '~/composables/ai/useAi';
 import { useAi } from '#imports';
 import { MessageCircleMore } from 'lucide-vue-next';
 

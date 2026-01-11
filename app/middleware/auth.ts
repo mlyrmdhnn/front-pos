@@ -4,6 +4,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const auth = useAuthStore();
 
+  $fetch("/api/refresh", {
+    method: "POST",
+  });
+
+  setInterval(() => {
+    $fetch("/api/refresh", {
+      method: "POST",
+    });
+  }, 840000);
+
   if (!auth.user) {
     try {
       const user = await $fetch("/api/me");

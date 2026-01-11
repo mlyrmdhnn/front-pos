@@ -1,9 +1,11 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const cookie = event.node.req.headers.cookie || "";
+  const query = getQuery(event);
 
   try {
     const res = await $fetch(`${config.apiBase}/products`, {
+      query,
       method: "GET",
       headers: {
         "X-Server-Auth": config.serverSecret,

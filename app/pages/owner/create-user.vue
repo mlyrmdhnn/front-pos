@@ -6,7 +6,6 @@ useHead({
     title: 'Create User'
 })
 definePageMeta({
-
     layout: 'main',
     middleware: 'auth',
     role: 'super_admin',

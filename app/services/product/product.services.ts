@@ -1,5 +1,5 @@
 export function productService() {
-  const getProductApi = async () => {
+  const getProductApi = async (page = 1) => {
     return $fetch("/api/products", {
       credentials: "include",
       method: "GET",
@@ -11,5 +11,18 @@ export function productService() {
       method: "GET",
     });
   };
-  return { getProductApi, getProductCategoryApi };
+  const createProductApi = async (payload: {
+    name: string;
+    price: number;
+    stock: number;
+    category: number;
+    description: string;
+  }) => {
+    return $fetch("/api/createProduct", {
+      method: "POST",
+      credentials: "include",
+      body: payload,
+    });
+  };
+  return { getProductApi, getProductCategoryApi, createProductApi };
 }
