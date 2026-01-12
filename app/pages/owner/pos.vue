@@ -25,7 +25,8 @@ const pages = computed(() => {
 
 
 const { selectedProducts, setProductSelected, priceTotal, increaseItem, decreaseItem } = usePayProduct()
-const { dataProduct, getProduct, meta, isLoading, getCategory, productCategory } = useProduct()
+// const { dataProduct, getProduct, meta, isLoading, getCategory, productCategory } = useProduct()
+const { dataProduct, getProduct, meta, detailProduct, isLoading, getCategory, productCategory, fetchProduct, selectedCategory, onCategoryChange } = useProduct()
 useHead({
     title: 'POS'
 })
@@ -60,13 +61,13 @@ const setShowPaymentMehtod = () => {
 
                 <div class="bg-white rounded p-2 flex gap-2">
                     <input type="text" placeholder="search" class="input">
-                    <select class=" px-3 py-2
+                    <select v-model="selectedCategory" @change="onCategoryChange" class=" px-3 py-2
          rounded-lg border border-slate-300
          bg-white text-sm
          focus:outline-none focus:ring-2 focus:ring-[#1B211A]/30
          transition">
                         <option value="">All</option>
-                        <option v-for="(p, i) in productCategory" :value="p.id">{{ p.name }}</option>
+                        <option v-for="(p, i) in productCategory" :key="i" :value="p.id">{{ p.name }}</option>
                     </select>
                 </div>
 
@@ -120,7 +121,7 @@ const setShowPaymentMehtod = () => {
                                 </button>
 
                                 <!-- First -->
-                                <button v-if="pages[0] > 1" @click="getProduct(1)"
+                                <button v-if="pages[0] > 1" @click="fetchProduct(1)"
                                     class="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">
                                     1
                                 </button>
@@ -128,7 +129,7 @@ const setShowPaymentMehtod = () => {
                                 <span v-if="pages[0] > 2" class="px-2 text-slate-400">…</span>
 
                                 <!-- Pages -->
-                                <button v-for="p in pages" :key="p" @click="getProduct(p)"
+                                <button v-for="p in pages" :key="p" @click="fetchProduct(p)"
                                     class="px-3 py-1.5 text-sm rounded-md transition" :class="p === meta.current_page
                                         ? 'bg-[#1B211A] text-white'
                                         : 'text-slate-700 hover:bg-slate-100'
@@ -142,14 +143,14 @@ const setShowPaymentMehtod = () => {
 
                                 <!-- Last -->
                                 <button v-if="pages[pages.length - 1] < meta.last_page"
-                                    @click="getProduct(meta.last_page)"
+                                    @click="fetchProduct(meta.last_page)"
                                     class="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">
                                     {{ meta.last_page }}
                                 </button>
 
                                 <!-- Next -->
                                 <button :disabled="meta.current_page >= meta.last_page"
-                                    @click="getProduct(meta.current_page + 1)" class="px-3 py-1.5 text-sm rounded-md
+                                    @click="fetchProduct(meta.current_page + 1)" class="px-3 py-1.5 text-sm rounded-md
                text-slate-700 hover:bg-slate-100
                disabled:text-slate-400
                disabled:cursor-not-allowed transition">

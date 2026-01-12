@@ -1,5 +1,5 @@
 <template>
-    <div v-for="d in 8" class="relative overflow-hidden
+    <div v-for="d in 8" :key="d" class="relative overflow-hidden
                             rounded-lg border border-gray-200
                             bg-neutral-300 p-6 shadow-sm
                             animate-pulse">

@@ -25,7 +25,7 @@ export function useProduct() {
 
   const getProduct = async (page = 1) => {
     isLoading.value = true;
-    dataProduct.value = "";
+    dataProduct.value = [];
     try {
       const res: any = await $fetch("/api/products", {
         query: { page },
@@ -48,7 +48,7 @@ export function useProduct() {
 
   const getCategory = async () => {
     if (process.server) return;
-    const res = await getProductCategoryApi();
+    const res: any = await getProductCategoryApi();
     productCategory.value = res.data;
   };
 
@@ -61,7 +61,7 @@ export function useProduct() {
     isLoading.value = true;
     try {
       const query = route.query;
-      const res = await $fetch(`/api/detailProduct?prd=${query.prd}`, {
+      const res: any = await $fetch(`/api/detailProduct?prd=${query.prd}`, {
         method: "GET",
       });
       productDetail.value = res.data;
@@ -81,15 +81,61 @@ export function useProduct() {
     }
   };
 
-  const getProdyctBycategory = async (id = 1) => {
+  const selectedCategory = ref<string | number>("");
+
+  const fetchProduct = async (page = 1) => {
     isLoading.value = true;
     try {
-      dataProduct.value = "";
-      const res = await $fetch("/api/products/byCategory", {
-        query: { id },
-      });
-      dataProduct.value = res;
-    } catch (err: any) {
+      const res: any = await $fetch(
+        selectedCategory.value ? "/api/products/byCategory" : "/api/products",
+        {
+          query: {
+            page,
+            id: selectedCategory.value || undefined,
+          },
+        }
+      );
+
+      const pagination = res[0];
+      dataProduct.value = pagination.data;
+      meta.value = {
+        current_page: pagination.current_page,
+        last_page: pagination.last_page,
+        total: pagination.total,
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // const getProdyctBycategory = async (id: string | number) => {
+  //   isLoading.value = true;
+  //   try {
+  //     dataProduct.value = [];
+  //     const res: any = await $fetch("/api/products/byCategory", {
+  //       query: { id },
+  //     });
+  //     const pagination = res[0];
+  //     dataProduct.value = pagination.data;
+  //     meta.value = {
+  //       current_page: pagination.current_page,
+  //       last_page: pagination.last_page,
+  //       total: pagination.total,
+  //     };
+  //   } catch (err: any) {
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // };
+
+  const onCategoryChange = async () => {
+    isLoading.value = true;
+    try {
+      if (!selectedCategory.value) {
+        await getProduct();
+      } else {
+        await fetchProduct(selectedCategory.value);
+      }
     } finally {
       isLoading.value = false;
     }
@@ -107,6 +153,9 @@ export function useProduct() {
     productDetail,
     deleteProduct,
     isLoadingMsg,
-    getProdyctBycategory,
+    // getProdyctBycategory,
+    fetchProduct,
+    selectedCategory,
+    onCategoryChange,
   };
 }
