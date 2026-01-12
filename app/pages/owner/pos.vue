@@ -5,9 +5,27 @@ import { useToast } from '#imports';
 
 const { show } = useToast()
 
+const pages = computed(() => {
+    const current = meta.value.current_page;
+    const last = meta.value.last_page;
+
+    const delta = 2; // jumlah halaman kiri-kanan
+    const range: number[] = [];
+
+    for (
+        let i = Math.max(1, current - delta);
+        i <= Math.min(last, current + delta);
+        i++
+    ) {
+        range.push(i);
+    }
+
+    return range;
+});
+
 
 const { selectedProducts, setProductSelected, priceTotal, increaseItem, decreaseItem } = usePayProduct()
-const { dataProduct, getProduct, meta } = useProduct()
+const { dataProduct, getProduct, meta, isLoading, getCategory, productCategory } = useProduct()
 useHead({
     title: 'POS'
 })
@@ -17,9 +35,12 @@ definePageMeta({
     role: 'super_admin'
 })
 
-onMounted(() => {
+const fetching = () => {
     getProduct()
-})
+    getCategory()
+}
+fetching()
+
 
 const showPaymentMethod = ref(false)
 const setShowPaymentMehtod = () => {
@@ -39,41 +60,104 @@ const setShowPaymentMehtod = () => {
 
                 <div class="bg-white rounded p-2 flex gap-2">
                     <input type="text" placeholder="search" class="input">
-                    <select name="" id="">
-                        <option selected>Choose Category </option>
-                        <option value="">k</option>
-                        <option value="">k</option>
-                        <option value="">k</option>
+                    <select class=" px-3 py-2
+         rounded-lg border border-slate-300
+         bg-white text-sm
+         focus:outline-none focus:ring-2 focus:ring-[#1B211A]/30
+         transition">
+                        <option value="">All</option>
+                        <option v-for="(p, i) in productCategory" :value="p.id">{{ p.name }}</option>
                     </select>
                 </div>
+
+
                 <!-- {{ dataProduct }} -->
                 <div class="mt-6">
-
                     <div class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
-                        <div v-for="d in dataProduct" @click="setProductSelected(d)"
-                            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:border-neutral-400">
-                            <div class="h-32 w-full bg-yellow-500">
-                                <span href="#">
-                                    <img class="mx-auto h-full " :src="d.image_url" alt="">
-                                </span>
+
+                        <template v-if="isLoading">
+                            <ProductSkeleton />
+                        </template>
+                        <template v-if="!isLoading">
+
+                            <div v-for="d in dataProduct" @click="setProductSelected(d)"
+                                class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:border-neutral-400">
+                                <div class="h-32 w-full bg-neutral-300 rounded overflow-hidden">
+                                    <span href="#" class="text-slate-700">
+                                        <img class="mx-auto h-full " :src="d.image_url" alt="No image available">
+                                    </span>
+                                </div>
+                                <div class="pt-6">
+
+                                    <div>
+                                        <h1>{{ d.name }}</h1>
+                                        <h1 class="text-sm">Stok : {{ d.quantity }}</h1>
+                                    </div>
+
+                                    <div>Category : {{ d.category.name }}</div>
+
+                                    <div class="mt-4 flex items-center justify-between gap-4">
+                                        <p class="text-1xl font-bold leading-tight text-gray-900 ">IDR
+                                            {{ d.price.toLocaleString() }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="pt-6">
+                        </template>
+                    </div>
+                    <ClientOnly>
+                        <div class="mt-6 flex justify-center">
+                            <div class="inline-flex items-center gap-1
+             rounded-lg border border-slate-200
+             bg-white p-1 shadow-sm">
+                                <!-- Prev -->
+                                <button :disabled="meta.current_page <= 1" @click="getProduct(meta.current_page - 1)"
+                                    class="px-3 py-1.5 text-sm rounded-md
+               text-slate-700 hover:bg-slate-100
+               disabled:text-slate-400
+               disabled:cursor-not-allowed transition">
+                                    Prev
+                                </button>
 
-                                <div>
-                                    <h1>{{ d.name }}</h1>
-                                    <h1 class="text-sm">Stok : {{ d.quantity }}</h1>
-                                </div>
+                                <!-- First -->
+                                <button v-if="pages[0] > 1" @click="getProduct(1)"
+                                    class="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">
+                                    1
+                                </button>
 
-                                <div>Category : {{ d.category.name }}</div>
+                                <span v-if="pages[0] > 2" class="px-2 text-slate-400">…</span>
 
-                                <div class="mt-4 flex items-center justify-between gap-4">
-                                    <p class="text-1xl font-bold leading-tight text-gray-900 ">IDR
-                                        {{ d.price.toLocaleString() }}
-                                    </p>
-                                </div>
+                                <!-- Pages -->
+                                <button v-for="p in pages" :key="p" @click="getProduct(p)"
+                                    class="px-3 py-1.5 text-sm rounded-md transition" :class="p === meta.current_page
+                                        ? 'bg-[#1B211A] text-white'
+                                        : 'text-slate-700 hover:bg-slate-100'
+                                        ">
+                                    {{ p }}
+                                </button>
+
+                                <span v-if="pages[pages.length - 1] < meta.last_page - 1" class="px-2 text-slate-400">
+                                    …
+                                </span>
+
+                                <!-- Last -->
+                                <button v-if="pages[pages.length - 1] < meta.last_page"
+                                    @click="getProduct(meta.last_page)"
+                                    class="px-3 py-1.5 text-sm rounded-md hover:bg-slate-100">
+                                    {{ meta.last_page }}
+                                </button>
+
+                                <!-- Next -->
+                                <button :disabled="meta.current_page >= meta.last_page"
+                                    @click="getProduct(meta.current_page + 1)" class="px-3 py-1.5 text-sm rounded-md
+               text-slate-700 hover:bg-slate-100
+               disabled:text-slate-400
+               disabled:cursor-not-allowed transition">
+                                    Next
+                                </button>
                             </div>
                         </div>
-                    </div>
+                    </ClientOnly>
                 </div>
             </div>
             <div class="bg-white rounded shadow-sm col-span-2 max-h-screen overflow-auto xl:col-span-3">
@@ -133,7 +217,6 @@ const setShowPaymentMehtod = () => {
                     </button>
                 </div>
             </div>
-
         </div>
     </section>
 </template>

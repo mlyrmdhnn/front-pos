@@ -3,6 +3,7 @@ import { authServices } from "~/services/auth.services";
 import { useAuthStore } from "~/store/auth";
 const { loginApi, changePassApi } = authServices();
 export function useAuth() {
+  const isLoading = ref(false);
   const show = useToast();
   const auth = useAuthStore();
   const msg = ref<string>("");
@@ -15,6 +16,7 @@ export function useAuth() {
     password: "",
   });
   const login = async () => {
+    isLoading.value = true;
     try {
       await loginApi(form.value);
       const user = await $fetch("/api/me");
@@ -25,6 +27,8 @@ export function useAuth() {
       navigateTo("/redirect");
     } catch (err: any) {
       msg.value = err.data.message;
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -53,5 +57,5 @@ export function useAuth() {
     }
   };
 
-  return { login, form, formChangePass, changePassword, msg };
+  return { login, form, formChangePass, changePassword, msg, isLoading };
 }

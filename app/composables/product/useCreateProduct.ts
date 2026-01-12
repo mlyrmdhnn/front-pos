@@ -1,6 +1,6 @@
-import { api } from "#imports";
-
+import { useToast } from "#imports";
 export function useCreateProduct() {
+  const { show } = useToast();
   const form = ref({
     name: "",
     price: 0,
@@ -16,7 +16,8 @@ export function useCreateProduct() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("File harus berupa gambar");
+      // alert("File harus berupa gambar");
+      show("File must be image", "error");
       return;
     }
     imageFile.value = file;
@@ -32,10 +33,15 @@ export function useCreateProduct() {
     fd.append("description", form.value.description);
     fd.append("image", imageFile.value);
 
-    await $fetch("/api/createProduct", {
-      method: "POST",
-      body: fd,
-    });
+    try {
+      await $fetch("/api/createProduct", {
+        method: "POST",
+        body: fd,
+      });
+      show("Success create product", "success");
+    } catch {
+      show("Failed to create product", "error");
+    }
   };
 
   return { form, submit, handleImage, imagePreview };

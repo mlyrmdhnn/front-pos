@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { useAuth } from '#imports';
-const { login, form, msg } = useAuth()
+const { login, form, msg, isLoading } = useAuth()
 useHead({
     title: 'POS Login',
 
@@ -57,9 +57,8 @@ useHead({
                         before:scale-x-0 before:origin-center
                         before:transition-transform before:duration-300
                         hover:before:scale-x-100 rounded-2xl">
-                    <span class="relative z-10">Login</span>
+                    <span class="relative z-10">{{ isLoading ? 'Authenticating...' : 'Login' }}</span>
                 </button>
-
             </form>
             <!-- Footer -->
             <div class="text-center mt-6 text-sm text-gray-400">

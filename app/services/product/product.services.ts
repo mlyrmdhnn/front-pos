@@ -24,5 +24,17 @@ export function productService() {
       body: payload,
     });
   };
-  return { getProductApi, getProductCategoryApi, createProductApi };
+
+  const deleteProductApi = (payload: { uuid: string }) => {
+    return $fetch("/api/deleteProduct", {
+      method: "POST",
+      body: payload,
+    });
+  };
+  return {
+    getProductApi,
+    getProductCategoryApi,
+    createProductApi,
+    deleteProductApi,
+  };
 }

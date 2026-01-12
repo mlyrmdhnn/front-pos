@@ -6,8 +6,16 @@ type Category = {
 };
 
 export function useProduct() {
-  const { getProductApi, getProductCategoryApi, createProductApi } =
-    productService();
+  const isLoading = ref(false);
+  const isLoadingMsg = ref(false);
+  const route = useRoute();
+  const {
+    getProductApi,
+    getProductCategoryApi,
+    createProductApi,
+    deleteProductApi,
+  } = productService();
+
   const dataProduct = ref<any>([]);
   const meta = ref({
     current_page: 1,
@@ -16,6 +24,8 @@ export function useProduct() {
   });
 
   const getProduct = async (page = 1) => {
+    isLoading.value = true;
+    dataProduct.value = "";
     try {
       const res: any = await $fetch("/api/products", {
         query: { page },
@@ -28,7 +38,10 @@ export function useProduct() {
         last_page: pagination.last_page,
         total: pagination.total,
       };
-    } catch (e: any) {}
+    } catch (e: any) {
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   const productCategory = ref<Category[]>([]);
@@ -39,16 +52,61 @@ export function useProduct() {
     productCategory.value = res.data;
   };
 
-  const detailProduct = () => {
-    navigateTo("/product-detail");
+  const detailProduct = (id: string) => {
+    navigateTo(`/product-detail?prd=${id}`);
+  };
+
+  const productDetail = ref([]);
+  const getDetailProduct = async () => {
+    isLoading.value = true;
+    try {
+      const query = route.query;
+      const res = await $fetch(`/api/detailProduct?prd=${query.prd}`, {
+        method: "GET",
+      });
+      productDetail.value = res.data;
+    } catch {
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const deleteProduct = async (uuid: string) => {
+    isLoadingMsg.value = true;
+    try {
+      await deleteProductApi({ uuid });
+    } finally {
+      isLoadingMsg.value = false;
+      navigateTo("/owner/pos");
+    }
+  };
+
+  const getProdyctBycategory = async (id = 1) => {
+    isLoading.value = true;
+    try {
+      dataProduct.value = "";
+      const res = await $fetch("/api/products/byCategory", {
+        query: { id },
+      });
+      dataProduct.value = res;
+    } catch (err: any) {
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   return {
+    isLoading,
     dataProduct,
     getProduct,
     productCategory,
     getCategory,
     meta,
     detailProduct,
+    getDetailProduct,
+    productDetail,
+    deleteProduct,
+    isLoadingMsg,
+    getProdyctBycategory,
   };
 }
